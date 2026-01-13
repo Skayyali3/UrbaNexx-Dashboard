@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | UrbaNexx{% endblock %}
+
+{% block content %}
+
+<form method="get" class="search-bar">
+  <input type="text" name="q" placeholder="Search city..." value="{{ query }}">
+  <button type="submit" name="searched" value="1"></button>
+</form>
+
+{% if warning %}
+  <div class="warning">{{ warning }}</div>
+{% endif %}
+
+<h3>Population vs Area</h3>
+<img src="data:image/png;base64,{{ plot }}" alt="Population vs Area Plot" class="plot">
+
+<h3>City Data Table</h3>
+<table>
+  <thead>
+    <tr>
+      <th>City</th>
+      <th>Country</th>
+      <th>Population</th>
+      <th>Area (km²)</th>
+      <th>Avg Temp (°C)</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    {% for row in tables %}
+    <tr>
+      <td>{{ row.City }}</td>
+      <td>{{ row.Country }}</td>
+      <td>{{ "{:,}".format(row.Population) }}</td>
+      <td>{{ row.Area_km2 }}</td>
+      <td>{{ row.Average_Temp_C }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
