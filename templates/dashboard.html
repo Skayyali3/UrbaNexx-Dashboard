@@ -5,7 +5,7 @@
 {% block content %}
 
 <form method="get" class="search-bar">
-  <input type="text" name="q" placeholder="Search city..." value="{{ query }}">
+  <input type="text" name="q" placeholder="Search city..." value="{{ query }}" maxlength="150">
   <button type="submit" name="searched" value="1"></button>
 </form>
 
@@ -13,8 +13,10 @@
   <div class="warning">{{ warning }}</div>
 {% endif %}
 
+{% if plot %}
 <h3>Population vs Area</h3>
 <img src="data:image/png;base64,{{ plot }}" alt="Population vs Area Plot" class="plot">
+{% endif %}
 
 <h3>City Data Table</h3>
 <table>
@@ -31,9 +33,16 @@
   <tbody>
     {% for row in tables %}
     <tr>
-      <td>{{ row.City }}</td>
+      <td><a href="{{ url_for('city_view', city_name=row.City) }}">{{ row.City }}</a></td>
+
       <td>{{ row.Country }}</td>
-      <td>{{ "{:,}".format(row.Population) }}</td>
+      <td>
+            {{ row.Population }}
+            {% if row.LivePopulation %}
+                <span class="live">LIVE</span>
+            {% endif %}
+      </td>
+
       <td>{{ row.Area_km2 }}</td>
       <td>{{ row.Average_Temp_C }}</td>
     </tr>
