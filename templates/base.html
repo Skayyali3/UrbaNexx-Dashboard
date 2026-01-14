@@ -4,13 +4,16 @@
   <meta charset="UTF-8">
   <title>{% block title %}UrbaNexx{% endblock %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <meta name="author" content="UrbaNexx Dev Team">
+  <meta name="description" content="UrbaNexx - Global City Data Dashboard: Explore population, area, density, and climate statistics for cities worldwide, accepting live data updates and contributions.">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/icon.png') }}">
 </head>
 <body>
 
   <header>
     <h1>UrbaNexx</h1>
+    <img src="{{ url_for('static', filename='images/icon.png') }}" alt="UrbaNexx Logo" class="logo">
     <p>Global City Data Dashboard</p>
   </header>
 

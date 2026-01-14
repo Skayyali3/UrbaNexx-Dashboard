@@ -39,6 +39,11 @@ main {
   font-size: 0.8em;
 }
 
+.dense {
+  font-weight: 600;
+  color: #b00020;
+}
+
 
 .plot {
   max-width: 100%;
@@ -60,4 +65,31 @@ th, td {
 
 th {
   background: #eee;
+}
+
+table tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+th {
+  background: #eee;
+  font-weight: 600;
+}
+
+table td, table th {
+  vertical-align: middle;
+}
+
+.search-bar input {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.search-bar button {
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+}
+.search-bar button:hover {
+  background: #f0f0f0;
 }

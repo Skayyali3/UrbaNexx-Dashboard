@@ -6,7 +6,7 @@
 
 <form method="get" class="search-bar">
   <input type="text" name="q" placeholder="Search city..." value="{{ query }}" maxlength="150">
-  <button type="submit" name="searched" value="1"></button>
+  <button type="submit" name="searched" value="1"><img src="{{ url_for('static', filename='images/search.png') }}" alt="Search button"></button>
 </form>
 
 {% if warning %}
@@ -18,6 +18,7 @@
 <img src="data:image/png;base64,{{ plot }}" alt="Population vs Area Plot" class="plot">
 {% endif %}
 
+{% if tables %}
 <h3>City Data Table</h3>
 <table>
   <thead>
@@ -26,6 +27,7 @@
       <th>Country</th>
       <th>Population</th>
       <th>Area (km²)</th>
+      <th>Population Density<br>(per km²)</th>
       <th>Avg Temp (°C)</th>
     </tr>
   </thead>
@@ -34,20 +36,27 @@
     {% for row in tables %}
     <tr>
       <td><a href="{{ url_for('city_view', city_name=row.City) }}">{{ row.City }}</a></td>
-
       <td>{{ row.Country }}</td>
       <td>
-            {{ row.Population }}
-            {% if row.LivePopulation %}
-                <span class="live">LIVE</span>
-            {% endif %}
+        {{ row.Population }}
       </td>
-
       <td>{{ row.Area_km2 }}</td>
+      <td class="{% if row.PopulationDensity and row.PopulationDensity > 10000 %}dense{% endif %}">
+            {% if row.PopulationDensity %}
+                {{ row.PopulationDensity }}
+            {% else %}
+                —
+            {% endif %}
+     </td>
+
+
       <td>{{ row.Average_Temp_C }}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+{% elif query %}
+  <p>No matching cities found for "{{ query }}".</p>
+{% endif %}
 
 {% endblock %}

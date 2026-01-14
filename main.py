@@ -2,164 +2,66 @@ from flask import Flask, render_template, request
 import pandas as pd
 import io
 import base64
-import requests
-import os
-import matplotlib
-matplotlib.use("Agg")
-
+import matplotlib as mpl
+mpl.rcParams['axes.formatter.use_mathtext'] = True
+mpl.use("Agg")
 import matplotlib.pyplot as plt
 
 
+df = pd.read_csv("data/cities.csv")
 
 app = Flask(__name__)
 
-df = pd.read_csv("data/cities.csv")
-
-iso_df = pd.read_csv("data/all.csv")
-
-country_to_alpha2 = dict(zip(iso_df['name'], iso_df['alpha-2']))
-
-country_to_alpha2.update({
-    "UK": "GB",
-    "USA": "US",
-    "Palestine": "PS",
-    "Russia": "RU",
-    "Iran": "IR",
-    "Viet Nam": "VN",
-    "Korea, South": "KR",
-    "Korea, North": "KP",
-    "Syria": "SY",
-    "Tanzania": "TZ",
-    "Moldova": "MD",
-    "Bolivia": "BO",
-    "DRC": "CD",
-    "Czechia": "CZ",
-    "Laos": "LA",
-    "Brunei": "BN",
-    "Cabo Verde": "CV",
-    "Eswatini": "SZ",
-    "Micronesia": "FM",
-    "Saint Kitts and Nevis": "KN",
-    "Saint Lucia": "LC",
-    "Saint Vincent and the Grenadines": "VC",
-    "Sao Tome and Principe": "ST",
-    "Timor-Leste": "TL",
-    "Ivory Coast": "CI",
-    "North Macedonia": "MK",
-    "Burma": "MM",
-    "Congo": "CG",
-    "Swaziland": "SZ",
-    "Cape Verde": "CV",
-    "East Timor": "TL",
-    "Vatican City": "VA",
-    "Palestinian Territories": "PS",
-    "Occupied Palestinian Territory": "PS",
-    "Occupied Palestine": "PS",
-    "Occupied Palestinian Territories": "PS",
-    "Republic of the Congo": "CG",
-    "Democratic Republic of the Congo": "CD",
-    "The Gambia": "GM",
-    "Bahamas": "BS",
-    "Gambia": "GM",
-    "Congo-Brazzaville": "CG",
-    "Congo-Kinshasa": "CD",
-    "Syrian Arab Republic": "SY",
-    "Venezuela, RB": "VE",
-    "Yemen, Rep.": "YE",
-    "Iran, Islamic Rep.": "IR",
-    "Korea, Dem. People's Rep.": "KP",
-    "Korea, Rep.": "KR",
-    "Lao PDR": "LA",
-    "Russian Federation": "RU",
-    "Tanzania, United Rep.": "TZ",
-    "United Kingdom": "GB",
-    "United States": "US",
-    "PRC": "CN"
-})
-
-population_cache = {}
-
-@app.route('/', methods=['GET'])
-
+@app.route("/", methods=["GET"])
 def dashboard():
-    query = request.args.get('q', '').strip()
-
-    if query:
-        filtered = df[df['City'].str.contains(query, case=False, na=False)]
-    else:
-        filtered = df
+    query = request.args.get("q", "").strip()
 
     warning = None
-    if request.args.get('searched') == '1' and not query:
+    filtered = pd.DataFrame()
+
+    if query:
+        filtered = df[df["City"].str.lower().str.contains(query.lower())]
+        if filtered.empty:
+            warning = f"No data found for '{query}'."
+    elif request.args.get("searched") == "1":
         warning = "Please enter a city name."
-    elif query and filtered.empty:
-        warning = f"No data found for '{query}'."
-
-
     plot = None
-    if query and not filtered.empty:
+    if not filtered.empty:
         plot = population_area_plot(filtered)
 
-    records = filtered.to_dict(orient='records')
+    records = filtered.to_dict(orient="records")
 
-    for row in records:
-        key = (row["City"], row["Country"])
-        if key in population_cache:
-            row["Population"] = population_cache[key]
-            row["LivePopulation"] = True
-        else:
-            live_pop = fetch_population(row["City"], row["Country"])
-            if live_pop:
-                row["Population"] = live_pop
-                row["LivePopulation"] = True
-                population_cache[key] = live_pop
-
-
-    return render_template('dashboard.html',tables=records,warning=warning,query=query,plot=plot)
+    return render_template("dashboard.html",tables=records,warning=warning,query=query,plot=plot)
 
 def population_area_plot(data):
-    if data.empty:
+    plot_data = data.dropna(subset=["Population", "Area_km2"])
+    if plot_data.empty:
         return None
+
     plt.figure(figsize=(6, 4))
-    plt.scatter(data['Area_km2'], data['Population'], alpha=0.7)
+
+    colors = plt.cm.tab20.colors
+    for i, (_, row) in enumerate(plot_data.iterrows()):
+        plt.scatter(
+            row["Area_km2"],
+            row["Population"],
+            label=row["City"],
+            color=colors[i % len(colors)],
+            alpha=0.8
+        )
+
     plt.xlabel("Area (km²)")
     plt.ylabel("Population")
+    plt.grid(True, which="both", ls="--", lw=0.5)
     plt.title("Population vs Area")
+    plt.legend(fontsize="small", loc="center left", bbox_to_anchor=(1.2, 1))
 
     img = io.BytesIO()
-    plt.savefig(img, format='png', bbox_inches='tight')
+    plt.savefig(img, format="png", bbox_inches="tight") 
     plt.close()
     img.seek(0)
 
-    return base64.b64encode(img.read()).decode('utf-8')
-
-GEODB_KEY = os.getenv("GEODB_API_KEY")
-
-def fetch_population(city, country):
-    code = country_to_alpha2.get(country)
-    if not code:
-        return None 
-
-    url = "https://wft-geo-db.p.rapidapi.com/v1/geo/cities"
-    headers = {
-        "X-RapidAPI-Key": GEODB_KEY,
-        "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com"
-    }
-    params = {
-        "namePrefix": city,
-        "countryIds": code,
-        "limit": 1
-    }
-
-    try:
-        r = requests.get(url, headers=headers, params=params, timeout=5)
-        data = r.json()
-        if data["data"]:
-            return data["data"][0].get("population")
-    except Exception:
-        pass
-
-    return None
+    return base64.b64encode(img.read()).decode("utf-8")
 
 
 
@@ -170,6 +72,7 @@ def city_view(city_name):
         return "City not found", 404
 
     return render_template("city.html", city=city.iloc[0])
+
 
 if __name__ == "__main__":
     app.run(debug=True)

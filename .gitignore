@@ -14,3 +14,17 @@ desktop.ini
 
 # IDE files
 .vscode/
+
+# Logs
+*.log
+logs/
+
+# Data files
+data/cities_backup_*.csv
+data/backups/
+
+# Pyinstaller
+dist/
+build/
+*.spec
+.exe
