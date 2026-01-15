@@ -142,20 +142,7 @@ def inject_year():
     return {"current_year": datetime.now().year}
 
 def get_latest_mod_time():
-    folders = ["templates", "static", "data"]
-    all_files = []
-
-    for folder in folders:
-        # Recursively get all files
-        all_files.extend(glob.glob(f"{folder}/**/*", recursive=True))
-
-    # Filter only actual files
-    all_files = [f for f in all_files if os.path.isfile(f)]
-    if not all_files:
-        return datetime.now().strftime("%Y-%m-%d")
-
-    latest_ts = max(os.path.getmtime(f) for f in all_files)
-    return datetime.fromtimestamp(latest_ts).strftime("%Y-%m-%d")
+    return datetime.utcnow().strftime("%Y-%m-%d")
 
 
 @app.route("/city/<city_name>")
