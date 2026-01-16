@@ -10,9 +10,11 @@ import matplotlib as mpl
 mpl.rcParams['axes.formatter.use_mathtext'] = True
 mpl.use("Agg")
 import matplotlib.pyplot as plt
+from urllib.parse import unquote
 
 
 df = pd.read_csv("data/cities.csv")
+df["City_lower"] = df["City"].str.lower()
 
 app = Flask(__name__)
 
@@ -148,13 +150,20 @@ def get_latest_mod_time():
     return datetime.utcnow().strftime("%Y-%m-%d")
 
 
-@app.route("/city/<city_name>")
+@app.route("/city/<path:city_name>")
 def city_view(city_name):
-    city = df[df["City"].str.lower() == city_name.lower()]
+    city_name = unquote(city_name).strip().lower()
+
+    city = df[df["City_lower"] == city_name]
     if city.empty:
-        return "City not found", 404
+        return render_template("404.html", message=f"City '{city_name.title()}' not found."), 404
 
     return render_template("city.html", city=city.iloc[0])
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("404.html",message="The page you are looking for does not exist."), 404
 
 @app.route("/sitemap.xml")
 def sitemap():
