@@ -56,4 +56,36 @@ document.addEventListener("DOMContentLoaded", () => {
     handleExport("csvForm", "csvError");
     handleExport("plotForm", "plotError");
 
+
+    const searchForm = document.querySelector(".search-bar");
+    const searchError = document.getElementById("searchError");
+
+    if (searchForm) {
+        searchForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            searchError.textContent = "";
+
+            const formData = new FormData(searchForm);
+            const params = new URLSearchParams(formData);
+
+            try {
+                const res = await fetch("/?" + params.toString(), {headers: { "X-Requested-With": "XMLHttpRequest" }});
+
+                const data = await res.json();
+
+                if (data.warning) {
+                    searchError.textContent = data.warning;
+                    return;
+                }
+                window.location.href = "/?" + params.toString(); // Refresh if success
+            } catch {
+                searchError.textContent = "Unexpected error. Please try again.";
+            }
+        });
+        searchForm.querySelector("input[name='q']").addEventListener("input", () => {
+            searchError.textContent = "";
+        });
+
+    }
+
 });

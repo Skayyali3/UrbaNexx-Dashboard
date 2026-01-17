@@ -12,12 +12,14 @@
   <button type="submit" name="searched" value="1">
     <img src="{{ url_for('static', filename='images/search.png') }}" alt="Search button">
   </button>
+  <div id="searchError" class="warning"></div>
 </form>
 
 <form method="get" class="full-view-form">
     <button type="submit" name="full_view" value="1" class="full-view-btn">
         View Full Table & Graph
     </button>
+    <div id="fullViewError" class="warning"></div> 
 </form>
 
 {% if warning %}
