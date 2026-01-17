@@ -3,8 +3,6 @@ import pandas as pd
 import io
 import base64
 import xml.etree.ElementTree as ET
-import os
-import glob
 from urllib.parse import quote
 import matplotlib as mpl
 mpl.rcParams['axes.formatter.use_mathtext'] = True
@@ -47,10 +45,11 @@ def dashboard():
 
     records = filtered.to_dict(orient="records")
 
+    # Respond to AJAX request
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return jsonify({"warning": warning,"plot": plot,"tables": records})
 
-
+    # page render
     return render_template("dashboard.html",tables=records,warning=warning,query=query,plot=plot,full_view=full_view,searched=request.args.get("searched") == "1")
 
 
@@ -59,34 +58,32 @@ def population_area_plot(data):
     if plot_data.empty:
         return None
 
-    plt.figure(figsize=(6, 4))
+    fig, ax = plt.subplots(figsize=(8, 6))
 
-    colors = plt.cm.tab20.colors
+
+    n = len(plot_data)
+    colors = plt.cm.viridis([i / max(n-1, 1) for i in range(n)])
+
     for i, (_, row) in enumerate(plot_data.iterrows()):
-        plt.scatter(
-            row["Area_km2"],
-            row["Population"],
-            label=row["City"],
-            color=colors[i % len(colors)],
-            alpha=0.8
-        )
+        ax.scatter(row["Area_km2"],row["Population"],label=row["City"],color=colors[i],alpha=0.8)
 
-    plt.xlabel("Area (km²)")
-    plt.ylabel("Population")
-    plt.grid(True, which="both", ls="--", lw=0.5)
-    plt.title("Population vs Area")
-    plt.legend(
-        fontsize="small",
-        loc="upper center",
-        bbox_to_anchor=(0.5, -0.15),
-        ncol=min(len(plot_data), 4),  # wraps into multiple columns if many cities
-        frameon=False
-    )
+    ax.set_xlabel("Area (km²)")
+    ax.set_ylabel("Population")
+    ax.set_title("Population vs Area")
+    ax.grid(True, which="both", ls="--", lw=0.5)
 
+    # Legend outside the plot on the right
+    leg = ax.legend(fontsize="small",loc="center left",bbox_to_anchor=(1, 0.5),frameon=False, ncol=1)
 
+    # Rotate legend labels if needed
+    for text in leg.get_texts():
+        text.set_ha("left")
+
+    # Save figure to base64
     img = io.BytesIO()
-    plt.savefig(img, format="png", bbox_inches="tight") 
-    plt.close()
+    plt.tight_layout()
+    plt.savefig(img, format="png", bbox_inches="tight")
+    plt.close(fig)
     img.seek(0)
 
     return base64.b64encode(img.read()).decode("utf-8")

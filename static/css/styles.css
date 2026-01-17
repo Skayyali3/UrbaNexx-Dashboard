@@ -110,6 +110,12 @@ main {
   margin: 20px 0;
 }
 
+.plot-wrapper-container {
+    max-height: 400px;  
+    overflow-y: auto;
+    padding-right: 10px; /* avoid scrollbar overlaying content */
+}
+
 .plot-wrapper {
     overflow-x: auto;      
     padding-bottom: 10px;  
