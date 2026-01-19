@@ -1,4 +1,5 @@
-from flask import Flask, render_template, request, send_file, url_for, redirect, Response, jsonify
+from flask import Flask, render_template, request, send_file, Response, jsonify
+from datetime import datetime, timezone
 import pandas as pd
 import io
 import base64
@@ -141,14 +142,12 @@ def export_plot():
 
     return send_file(buf,mimetype="image/png",as_attachment=True,download_name="population_area_plot.png")
 
-from datetime import datetime
-
 @app.context_processor
 def inject_year():
     return {"current_year": datetime.now().year}
 
 def get_latest_mod_time():
-    return datetime.utcnow().strftime("%Y-%m-%d")
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
 
 @app.route("/city/<path:city_name>")

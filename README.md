@@ -15,7 +15,7 @@ UrbaNexx is an interactive dashboard that provides an overview of cities worldwi
 ---
 
 ## Live Demo:
-[UrbaNexx Dashboard](https://urbanexx-dashboard.vercel.app/)
+Check out the live site on: **[UrbaNexx Dashboard](https://urbanexx-dashboard.vercel.app/)**!
 
 ---
 
@@ -33,7 +33,7 @@ Proper attribution is required when using or modifying this data.
 
 ### 1. Clone this repository:
 ```bash
-   git clone https://github.com/skayyali3/UrbaNexxDash.git
+   git clone https://github.com/Skayyali3/UrbaNexxDash.git
    cd UrbaNexxDash
 ```
 ### 2. Make a virtual environment:
@@ -58,7 +58,7 @@ Proper attribution is required when using or modifying this data.
 ### 5. Run:
 ```bash 
     python main.py
-    # Open Open your browser at http://127.0.0.1:5000 to view the dashboard.
+    # Open your browser at http://127.0.0.1:5000 to view the dashboard.
 ```
 
 ---
