@@ -1,5 +1,5 @@
 # Updates Happen Monthly Automatically
-# Need a GEODB_API_KEY to be able to run + 
+# Need a GEODB_API_KEY to be able to run, add to environment variables for safety
 
 import pandas as pd
 import requests
