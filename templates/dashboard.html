@@ -26,27 +26,8 @@
   <div class="warning">{{ warning }}</div>
 {% endif %}
 
-{% if plot or tables %}
+
 <div class="dashboard-content">
-    {% if plot %}
-        <div class="plot-container">
-            <h3>Population vs Area</h3>
-            <form method="post" action="{{ url_for('export_plot') }}" id="plotForm">
-                    {% for row in tables %}
-                        <input type="hidden" name="cities" value="{{ row.City }}">
-                    {% endfor %}
-                    <button type="submit" class="export-btn">Download Plot as PNG</button>
-                    <div id="plotError" class="export-error"></div>
-            </form>
-            <div class="plot-wrapper-container">
-                <div class="plot-wrapper">
-                    {{ plot | safe }}
-                </div>
-            </div>
-        </div>
-    {% endif %}
-
-
     {% if tables %}
     <div class="table-container">
         <h3>City Data Table</h3>
@@ -87,8 +68,7 @@
     </div>
     {% endif %}
 </div>
-{% endif %}
-{% if not plot and not tables and not warning and searched %}
+{% if not tables and not warning and searched %}
   <p>No data available to display, search for a city to display data.</p>
 {% endif %}
 

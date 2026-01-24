@@ -7,7 +7,6 @@ UrbaNexx is an interactive dashboard that provides an overview of cities worldwi
 ## Features
 
 - **Searchable City Table**: Quickly find cities using the search bar.
-- **Population vs Area Plot**: Visual representation of city populations relative to their area.
 - **Live Population Updates**: Fetches updated population data from the GeoDB API.
 - **Data Submission**: Users can submit new information for cities, subject to verification.
 - **Interactive Table**: Browse, sort, and view city data easily in table format.

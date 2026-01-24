@@ -54,7 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     handleExport("csvForm", "csvError");
-    handleExport("plotForm", "plotError");
 
 
     const searchForm = document.querySelector(".search-bar");
@@ -88,12 +87,6 @@ document.addEventListener("DOMContentLoaded", () => {
                             tr.innerHTML = `<td><input type="checkbox" name="cities" value="${row.City}"></td><td><a href="/city/${encodeURIComponent(row.City)}">${row.City}</a></td><td>${row.Country}</td><td>${row.Population}</td><td>${row.Area_km2}</td><td class="${row.PopulationDensity && row.PopulationDensity > 10000 ? "dense" : ""}">${row.PopulationDensity || "—"}</td><td>${row.Average_Temp_C}</td>`;
                             tbody.appendChild(tr);
                         });
-                    }
-
-                    // Update plot
-                    const plotImg = document.querySelector(".plot-wrapper img");
-                    if (plotImg && data.plot) {
-                        plotImg.src = `data:image/png;base64,${data.plot}`;
                     }
                 }
 

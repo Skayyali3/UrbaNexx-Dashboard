@@ -97,24 +97,6 @@ main {
   color: #b00020;
 }
 
-.plot-container {
-  flex: 1 1 500px;
-  min-width: 300px;
-}
-
-.plot-wrapper-container {
-    max-height: 400px;  
-    overflow-y: auto;
-    padding-right: 10px; /* avoid scrollbar overlaying content */
-}
-
-.plot-wrapper {
-    overflow-x: auto;      
-    padding-bottom: 10px;  
-    -webkit-overflow-scrolling: touch; 
-}
-
-
 .table-container {
   flex: 1 1 500px;
   min-width: 300px;
@@ -203,7 +185,6 @@ table tbody tr:nth-child(even) {
     flex-direction: column;
   }
 
-  .plot-container,
   .table-container {
     min-width: 100%;
   }

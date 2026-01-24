@@ -4,8 +4,6 @@ import pandas as pd
 import io
 import xml.etree.ElementTree as ET
 from urllib.parse import quote
-import plotly.express as px 
-import plotly.io as pio 
 from urllib.parse import unquote
 
 
@@ -25,8 +23,6 @@ def dashboard():
 
     if export_error == "no-selection-csv":
         warning = "No cities selected for CSV export, select at least one."
-    elif export_error == "no-selection-plot":
-        warning = "No cities found for plot export, select at least one in database."
 
     if full_view:
         filtered = df.copy()
@@ -37,30 +33,9 @@ def dashboard():
     elif request.args.get("searched") == "1":
         warning = "Please enter a city name."
 
-    plot = None
-    if not filtered.empty:
-        plot = population_area_plot(filtered)
-
     records = filtered.to_dict(orient="records")
 
-    # Respond to AJAX request
-    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return jsonify({"warning": warning,"plot": plot,"tables": records})
-
-    return render_template("dashboard.html",tables=records,warning=warning,query=query,plot=plot,full_view=full_view,searched=request.args.get("searched") == "1")
-
-
-def population_area_plot(data):
-    plot_data = data.dropna(subset=["Population", "Area_km2"])
-    if plot_data.empty:
-        return None
-
-    fig = px.scatter(plot_data,x="Area_km2",y="Population",color="City",hover_name="City",labels={"Area_km2":"Area (km²)","Population":"Population"},title="Population vs Area",color_discrete_sequence=px.colors.qualitative.Alphabet)
-    fig.update_traces(marker=dict(size=8, opacity=0.8))
-    fig.update_layout(autosize=True,margin=dict(l=40, r=20, t=50, b=40),legend=dict(font=dict(size=10),orientation="h",yanchor="bottom",y=-0.3))
-    plot_html = pio.to_html(fig,full_html=False,include_plotlyjs="cdn",config={"responsive": True})
-
-    return plot_html
+    return render_template("dashboard.html",tables=records,warning=warning,query=query,full_view=full_view,searched=request.args.get("searched") == "1")
 
 
 
@@ -79,26 +54,6 @@ def export_csv():
     csv_buffer.seek(0)
 
     return send_file(io.BytesIO(csv_buffer.getvalue().encode()),mimetype="text/csv",as_attachment=True,download_name="selected_cities.csv")
-
-@app.route("/export_plot", methods=["POST"])
-def export_plot():
-    selected_cities = request.form.getlist("cities")
-    if not selected_cities:
-        return jsonify({"error": "Select at least one city to export plot."}), 400
-
-    filtered = df[df["City"].isin(selected_cities)]
-    if filtered.empty:
-        return jsonify({"error": "No valid city data to plot."}), 400
-
-    # Plotly scatter for export
-    fig = px.scatter(filtered,x="Area_km2",y="Population",color="City",hover_name="City",labels={"Area_km2": "Area (km²)", "Population": "Population"},color_discrete_sequence=px.colors.qualitative.Alphabet,width=1200,height=800,title="Population vs Area")
-    fig.update_traces(marker=dict(size=8, opacity=0.8))
-
-    buf = io.BytesIO()
-    fig.write_image(buf, format="png", engine="kaleido")
-    buf.seek(0)
-
-    return send_file(buf,mimetype="image/png",as_attachment=True,download_name="population_area_plot.png")
 
 @app.context_processor
 def inject_year():
